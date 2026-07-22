@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account{% endblock %}
+
+{% block content %}
+<div class="form-container animate-up" style="max-width: 700px;">
+    <div class="text-center mb-4">
+        <div class="h2 font-weight-bold"><i class="fa-solid fa-user-plus text-primary mr-2"></i> Join Us</div>
+        <p class="text-muted">Create your Lost & Found account</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('register') }}" onsubmit="return validateForm()">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">FIRST NAME</label>
+                <input type="text" class="form-control" name="first_name" required placeholder="John">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">LAST NAME</label>
+                <input type="text" class="form-control" name="last_name" required placeholder="Doe">
+            </div>
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="small font-weight-bold ml-1 text-muted">EMAIL ADDRESS</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text bg-white border-right-0" style="border-radius: 12px 0 0 12px;"><i
+                            class="fa-regular fa-envelope text-muted"></i></span>
+                </div>
+                <input type="email" class="form-control border-left-0" id="email" name="email" required
+                    placeholder="your.email@example.com" style="border-radius: 0 12px 12px 0;">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">ROLL NUMBER</label>
+                <input type="text" class="form-control" name="roll_number" required placeholder="e.g. 106121001">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">BATCH</label>
+                <input type="number" class="form-control" name="batch" min="2020" max="2030" required
+                    placeholder="2024">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">COURSE</label>
+                <select class="form-control" name="course" required>
+                    <option value="Btech">Btech</option>
+                    <option value="Barch">Barch</option>
+                    <option value="Mtech">Mtech</option>
+                    <option value="Msc">Msc</option>
+                    <option value="PHD">PHD</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">BRANCH</label>
+                <select class="form-control" name="branch" required>
+                    <option value="CSE">CSE</option>
+                    <option value="ECE">ECE</option>
+                    <option value="EEE">EEE</option>
+                    <option value="ICE">ICE</option>
+                    <option value="Chem">Chem</option>
+                    <option value="Civil">Civil</option>
+                    <option value="MECH">MECH</option>
+                    <option value="Prod">Prod</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="small font-weight-bold ml-1 text-muted">MOBILE NUMBER</label>
+            <input type="text" class="form-control" name="mobile_number" required placeholder="e.g. +91 9876543210" style="border-radius: 12px;">
+        </div>
+
+        <div class="form-group mb-4">
+            <label class="small font-weight-bold ml-1 text-muted">PASSWORD</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text bg-white border-right-0" style="border-radius: 12px 0 0 12px;"><i
+                            class="fa-solid fa-lock text-muted"></i></span>
+                </div>
+                <input type="password" class="form-control border-left-0" id="password" name="password" required
+                    placeholder="••••••••" style="border-radius: 0 12px 12px 0;">
+            </div>
+            <small class="form-text text-muted mt-2">
+                <i class="fa-solid fa-circle-info mr-1"></i> Min 8 chars, including letters and numbers.
+            </small>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block py-3 mb-4 shadow-sm">
+            Create Account
+        </button>
+
+        <div class="text-center py-2 bg-light rounded-lg border">
+            <span class="text-muted small">Already a member?</span>
+            <a href="{{ url_for('login') }}" class="small font-weight-bold text-primary ml-1">Sign In Instead</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    function validateForm() {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        if (!email.includes("@") || !email.includes(".")) {
+            alert("Please enter a valid email address");
+            return false;
+        }
+
+        const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+        if (!passwordPattern.test(password)) {
+            alert("Password must be at least 8 characters long and contain both letters and numbers.");
+            return false;
+        }
+
+        return true;
+    }
+</script>
+{% endblock %}

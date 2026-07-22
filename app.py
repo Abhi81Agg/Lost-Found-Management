@@ -2,13 +2,20 @@ from flask import Flask, render_template, redirect, url_for, flash, request, ses
 from flask_bcrypt import Bcrypt
 from flask_login import login_user, logout_user, login_required, current_user, LoginManager
 import random
-import os
+
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
-from models import db, User, Item, Category
+from models import db, User, Item, Category, ClaimedItem
 from datetime import datetime
+import os
+from flask import Flask
 
-app = Flask(__name__)
+base_dir = os.path.abspath(os.path.dirname(__file__))
+
+app = Flask(__name__,
+            template_folder=os.path.join(base_dir, 'templates'),
+            static_folder=os.path.join(base_dir, 'static'))
+
 
 # ================= CONFIG =================
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'd6b5f6a4d1c1e3c9b7d9d2f1e8b9c0a4e5d6f7a8b9c0d1e2f3a4b5c6d7e8f9g0h')
@@ -67,6 +74,7 @@ Name: {sender_user.first_name} {sender_user.last_name}
 Email: {sender_user.email}
 Roll Number: {sender_user.roll_number}
 Branch: {sender_user.branch}
+Mobile Number: {sender_user.mobile_number or 'Not provided'}
 
 Please contact them.
 
@@ -94,7 +102,8 @@ def register():
             'roll_number': request.form.get('roll_number'),
             'batch': request.form.get('batch'),
             'course': request.form.get('course'),
-            'branch': request.form.get('branch')
+            'branch': request.form.get('branch'),
+            'mobile_number': request.form.get('mobile_number')
         })
 
         msg = Message("OTP Verification", sender=app.config['MAIL_USERNAME'], recipients=[session['email']])
@@ -124,6 +133,7 @@ def verify_registration():
                 batch=session['batch'],
                 course=session['course'],
                 branch=session['branch'],
+                mobile_number=session.get('mobile_number'),
                 is_verified=True
             )
             db.session.add(user)
@@ -178,17 +188,25 @@ def forgot_password():
 def reset_password(token):
     if current_user.is_authenticated:
         return redirect(url_for('home_page'))
+
     user = User.verify_reset_token(token)
+
     if user is None:
         flash('That is an invalid or expired token', 'warning')
         return redirect(url_for('forgot_password'))
+
     if request.method == 'POST':
-        hashed_password = bcrypt.generate_password_hash(request.form.get('password')).decode('utf-8')
+        hashed_password = bcrypt.generate_password_hash(
+            request.form.get('password')
+        ).decode('utf-8')
+
         user.password = hashed_password
         db.session.commit()
+
         flash('Your password has been updated! You are now able to log in', 'success')
         return redirect(url_for('login'))
-    return render_template('reset_password.html')
+
+    return render_template('reset_password.html', token=token)
 
 
 
@@ -209,6 +227,7 @@ def update_profile():
         current_user.batch = request.form.get('batch')
         current_user.course = request.form.get('course')
         current_user.branch = request.form.get('branch')
+        current_user.mobile_number = request.form.get('mobile_number')
 
         file = request.files.get('profile_pic')
         if file and file.filename:
@@ -217,6 +236,14 @@ def update_profile():
                 os.makedirs(app.config['UPLOAD_FOLDER'])
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             current_user.profile_pic = filename
+
+        id_card = request.files.get('student_id_card')
+        if id_card and id_card.filename:
+            filename = secure_filename(id_card.filename)
+            if not os.path.exists(app.config['UPLOAD_FOLDER']):
+                os.makedirs(app.config['UPLOAD_FOLDER'])
+            id_card.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            current_user.student_id_card = filename
 
         db.session.commit()
         flash("Profile updated!", "success")
@@ -362,6 +389,9 @@ def mark_found(item_id):
     send_user_details_email(owner.email, current_user, item, "FOUND YOUR ITEM")
 
     item.claimed = 1
+    # Record the match in ClaimedItem
+    claimed_item = ClaimedItem(item_id=item.id, claimer_id=current_user.id)
+    db.session.add(claimed_item)
     db.session.commit()
 
     flash("Owner notified!", "success")
@@ -383,6 +413,9 @@ def mark_lost(item_id):
     send_user_details_email(owner.email, current_user, item, "CLAIMED YOUR ITEM")
 
     item.claimed = 1
+    # Record the match in ClaimedItem
+    claimed_item = ClaimedItem(item_id=item.id, claimer_id=current_user.id)
+    db.session.add(claimed_item)
     db.session.commit()
 
     flash("Owner notified!", "success")

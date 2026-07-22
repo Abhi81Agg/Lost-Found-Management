@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Item Details: {{ item.name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-9 animate-up">
+        <a href="{{ url_for('home_page') }}" class="btn btn-link text-muted mb-4 pl-0 transition-hover">
+            <i class="fa-solid fa-arrow-left mr-2"></i> Back to discovery
+        </a>
+
+        <div class="card border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+            <div class="row no-gutters">
+                <div class="col-md-6 bg-light d-flex align-items-center justify-content-center" style="min-height: 400px; background: #f8fafc;">
+                    <img src="{{ url_for('static', filename='images/' + item.image_file) }}" 
+                         class="img-fluid w-100 h-100" style="object-fit: contain; max-height: 600px;"
+                         onerror="this.src='https://via.placeholder.com/600x600?text=Item+Image'">
+                </div>
+                <div class="col-md-6 p-4 p-md-5 d-flex flex-column">
+                    <div class="mb-3">
+                        <span class="badge" style="padding: 0.5rem 1.25rem; border-radius: 100px; font-weight: 700; background: {% if item.status|lower == 'lost' %}#fee2e2; color: #dc2626;{% else %}#dcfce7; color: #16a34a;{% endif %}">
+                            <i class="fa-solid {% if item.status|lower == 'lost' %}fa-magnifying-glass{% else %}fa-hand-holding{% endif %} mr-1"></i> {{ item.status|upper }}
+                        </span>
+                        {% if item.claimed %}
+                        <span class="badge badge-info ml-2" style="padding: 0.5rem 1.25rem; border-radius: 100px; font-weight: 700;">
+                            <i class="fa-solid fa-check-circle mr-1"></i> RESOLVED
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <h1 class="font-weight-bold mb-4" style="color: var(--bg-dark);">{{ item.name }}</h1>
+                    
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle bg-primary-soft p-2 mr-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: #eef2ff; color: var(--primary-color);">
+                                <i class="fa-solid fa-tag"></i>
+                            </div>
+                            <div>
+                                <div class="small text-muted font-weight-bold text-uppercase">Category</div>
+                                <div class="font-weight-bold">{{ item.category.name }}</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle bg-primary-soft p-2 mr-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: #fff7ed; color: #f97316;">
+                                <i class="fa-solid fa-location-dot"></i>
+                            </div>
+                            <div>
+                                <div class="small text-muted font-weight-bold text-uppercase">Location</div>
+                                <div class="font-weight-bold">{{ item.location or 'Unknown Location' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center mb-0">
+                            <div class="rounded-circle bg-primary-soft p-2 mr-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: #f0fdf4; color: #16a34a;">
+                                <i class="fa-regular fa-calendar-days"></i>
+                            </div>
+                            <div>
+                                <div class="small text-muted font-weight-bold text-uppercase">Reported On</div>
+                                <div class="font-weight-bold">{{ item.date }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-light p-4 rounded-lg mb-4 border-left border-primary" style="border-width: 4px !important; background: #f1f5f9;">
+                        <h6 class="font-weight-bold text-muted mb-2">DESCRIPTION</h6>
+                        <p class="mb-0 text-secondary">{{ item.description }}</p>
+                    </div>
+
+                    {% if item.claimed %}
+                        {% set claim = item.claims[0] if item.claims else None %}
+                        {% if claim %}
+                            {% if current_user.is_authenticated and (current_user.id == item.user_id or current_user.id == claim.claimer_id) %}
+                                <div class="p-4 rounded-lg mb-4 border-left border-success shadow-sm" style="border-width: 4px !important; background: #f0fdf4 !important; border-color: #22c55e !important;">
+                                    <h6 class="font-weight-bold text-success mb-3"><i class="fa-solid fa-handshake mr-2"></i> MATCHED USER DETAILS</h6>
+                                    {% if current_user.id == item.user_id %}
+                                        <!-- Current user is owner, show details of claimer -->
+                                        {% set target_user = claim.claimer %}
+                                        <p class="small text-muted mb-3">Since you are the owner of this post, here are the details of the student who claimed/found this item:</p>
+                                    {% else %}
+                                        <!-- Current user is claimer, show details of owner -->
+                                        {% set target_user = item.owner %}
+                                        <p class="small text-muted mb-3">Since you claimed/found this item, here are the details of the owner:</p>
+                                    {% endif %}
+                                    
+                                    <div class="row">
+                                        <div class="col-sm-6 mb-2">
+                                            <span class="small font-weight-bold text-muted text-uppercase d-block" style="font-size: 0.75rem;">Name</span>
+                                            <span class="font-weight-bold text-dark">{{ target_user.first_name }} {{ target_user.last_name }}</span>
+                                        </div>
+                                        <div class="col-sm-6 mb-2">
+                                            <span class="small font-weight-bold text-muted text-uppercase d-block" style="font-size: 0.75rem;">Email</span>
+                                            <a href="mailto:{{ target_user.email }}" class="font-weight-bold">{{ target_user.email }}</a>
+                                        </div>
+                                        <div class="col-sm-6 mb-2">
+                                            <span class="small font-weight-bold text-muted text-uppercase d-block" style="font-size: 0.75rem;">Roll Number</span>
+                                            <span class="font-weight-bold text-dark">{{ target_user.roll_number }} ({{ target_user.branch }})</span>
+                                        </div>
+                                        <div class="col-sm-6 mb-2">
+                                            <span class="small font-weight-bold text-muted text-uppercase d-block" style="font-size: 0.75rem;">Mobile Number</span>
+                                            <span class="font-weight-bold text-dark"><i class="fa-solid fa-phone text-success mr-1"></i> {{ target_user.mobile_number or 'Not provided' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <span class="small font-weight-bold text-muted text-uppercase d-block mb-1" style="font-size: 0.75rem;">Student ID Card</span>
+                                        {% if target_user.student_id_card %}
+                                            <a href="{{ url_for('static', filename='images/' + target_user.student_id_card) }}" target="_blank">
+                                                <img src="{{ url_for('static', filename='images/' + target_user.student_id_card) }}" 
+                                                     class="img-fluid rounded border shadow-sm" style="max-height: 150px; object-fit: contain;">
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted small">Not uploaded</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+
+                    <div class="mt-auto">
+                        <!-- ================= USER ACTIONS ================= -->
+                        {% if current_user.is_authenticated and not item.claimed %}
+                            {% if current_user.id != item.user_id %}
+                                {% if item.status|lower == "lost" %}
+                                <form action="{{ url_for('mark_found', item_id=item.id) }}" method="POST">
+                                    <button class="btn btn-primary btn-block py-3 shadow-lg transition-hover">
+                                        <i class="fa-solid fa-check-circle mr-2"></i> I Found This Item
+                                    </button>
+                                </form>
+                                {% elif item.status|lower == "found" %}
+                                <form action="{{ url_for('mark_lost', item_id=item.id) }}" method="POST">
+                                    <button class="btn btn-warning btn-block py-3 shadow-lg transition-hover text-white font-weight-bold">
+                                        <i class="fa-solid fa-hand-holding-heart mr-2"></i> This Is Mine
+                                    </button>
+                                </form>
+                                {% endif %}
+                            {% else %}
+                                <div class="row px-2">
+                                    <div class="col-6 pl-0">
+                                        <a href="{{ url_for('edit_item', item_id=item.id) }}" class="btn btn-outline-primary btn-block py-3">
+                                            <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
+                                        </a>
+                                    </div>
+                                    <div class="col-6 pr-0">
+                                        <form action="{{ url_for('delete_item', item_id=item.id) }}" method="POST" class="d-inline">
+                                            <button class="btn btn-outline-danger btn-block py-3" onclick="return confirm('Permanently delete this post?')">
+                                                <i class="fa-solid fa-trash-can mr-1"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% elif not current_user.is_authenticated %}
+                            <div class="text-center p-3 border rounded-lg bg-light">
+                                <p class="small text-muted mb-2">Want to contact the owner?</p>
+                                <a href="{{ url_for('login') }}" class="btn btn-primary btn-sm px-4">Sign In to Resolve</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

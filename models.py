@@ -51,6 +51,8 @@ class User(db.Model, UserMixin):
     batch = db.Column(db.Integer, nullable=False)
     course = db.Column(db.Enum(CourseEnum), nullable=False)
     branch = db.Column(db.Enum(BranchEnum), nullable=False)
+    mobile_number = db.Column(db.String(20), nullable=True)
+    student_id_card = db.Column(db.String(255), nullable=True)
 
     items = db.relationship('Item', backref='owner', lazy=True)
     password_reset_tokens = db.relationship('PasswordResetToken', backref='user', lazy=True)
@@ -104,6 +106,8 @@ class Item(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     claimed = db.Column(db.Boolean, default=False)
     location = db.Column(db.String(255))  # Add this line to include the location field
+
+    claims = db.relationship('ClaimedItem', backref='item', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
         return f"Item('{self.name}', '{self.status}', '{self.date}')"

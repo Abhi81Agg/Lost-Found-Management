@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Item{% endblock %}
+
+{% block content %}
+<div class="form-container animate-up" style="max-width: 600px;">
+    <div class="text-center mb-4">
+        <div class="h2 font-weight-bold"><i class="fa-solid fa-plus-circle text-primary mr-2"></i> Post Item</div>
+        <p class="text-muted">Fill in the details for your lost or found item</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('add_item') }}" enctype="multipart/form-data">
+        <div class="form-group mb-3">
+            <label class="small font-weight-bold ml-1 text-muted">ITEM NAME</label>
+            <input type="text" class="form-control" name="name" required placeholder="e.g. Blue Backpack">
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="small font-weight-bold ml-1 text-muted">DESCRIPTION</label>
+            <textarea class="form-control" name="description" rows="3" required placeholder="Describe the item, contents, labels..."></textarea>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">CATEGORY</label>
+                <select class="form-control" name="category" required>
+                    <option value="">-- Select --</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">STATUS</label>
+                <select class="form-control" name="status" required>
+                    <option value="lost">Lost</option>
+                    <option value="found">Found</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">DATE</label>
+                <input type="date" class="form-control" name="date" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">LOCATION</label>
+                <input type="text" class="form-control" name="location" required placeholder="e.g. Library Desk">
+            </div>
+        </div>
+
+        <div class="form-group mb-4">
+            <label class="small font-weight-bold ml-1 text-muted">UPLOAD IMAGE</label>
+            <div class="custom-file">
+                <input type="file" class="custom-file-input" id="image" name="image">
+                <label class="custom-file-label" for="image" style="border-radius: 12px;">Choose file...</label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block py-3 shadow-sm">
+            <i class="fa-solid fa-paper-plane mr-2"></i> Submit Post
+        </button>
+    </form>
+</div>
+
+<script>
+// Display filename in custom file input
+document.querySelector('.custom-file-input').addEventListener('change', function(e) {
+    let fileName = e.target.files[0].name;
+    let nextSibling = e.target.nextElementSibling;
+    nextSibling.innerText = fileName;
+});
+</script>
+{% endblock %}

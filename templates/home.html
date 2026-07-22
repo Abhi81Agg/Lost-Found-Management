@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+
+{% block content %}
+
+
+<!-- Hero Section -->
+<div class="text-center py-5">
+    <h1 class="display-4 font-weight-bold animate-up" style="color: var(--bg-dark);">Find What You've Lost</h1>
+    <p class="lead text-muted animate-up" style="animation-delay: 0.1s;">A premium community portal for recovering lost items and returning found belongings.</p>
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="form-container mb-5 p-4 animate-up" style="max-width: 100%; animation-delay: 0.2s;">
+    <form method="GET" action="{{ url_for('home_page') }}" class="row align-items-end">
+        <div class="col-md-5 mb-2 mb-md-0">
+            <label class="small font-weight-bold ml-1 text-muted">SEARCH</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text bg-white border-right-0" style="border-radius: 12px 0 0 12px;"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                </div>
+                <input type="text" class="form-control border-left-0" name="search" placeholder="Wallet, sunglasses, keys..." value="{{ request.args.get('search', '') }}" style="border-radius: 0 12px 12px 0;">
+            </div>
+        </div>
+        <div class="col-md-4 mb-2 mb-md-0">
+            <label class="small font-weight-bold ml-1 text-muted">CATEGORY</label>
+            <select class="form-control" name="category">
+                <option value="">All Categories</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}" {% if request.args.get('category') == category.id|string %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fa-solid fa-filter mr-2"></i> Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Items Grid -->
+<div class="row">
+    {% for item in items %}
+    <div class="col-md-4 mb-4 animate-up" style="animation-delay: {{ 0.1 * loop.index }}s;">
+        <div class="card h-100">
+            <div class="position-relative">
+                <img src="{{ url_for('static', filename='images/' + item.image_file) }}" class="card-img-top" alt="{{ item.name }}"
+                     onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+                <span class="badge position-absolute" style="top: 15px; right: 15px; padding: 0.5rem 1rem; border-radius: 100px; font-weight: 700; background: {% if item.status|lower == 'lost' %}#fee2e2; color: #dc2626;{% else %}#dcfce7; color: #16a34a;{% endif %}">
+                    {{ item.status|upper }}
+                </span>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ item.name }}</h5>
+                <p class="text-muted small mb-3">
+                    <i class="fa-solid fa-location-dot mr-1"></i> {{ item.location or 'Unknown Location' }}
+                </p>
+                <p class="card-text text-secondary mb-4">{{ item.description[:100] }}{% if item.description|length > 100 %}...{% endif %}</p>
+                <div class="mt-auto">
+                    <a href="{{ url_for('item_detail', item_id=item.id) }}" class="btn btn-outline-primary btn-block">
+                        View Details <i class="fa-solid fa-chevron-right ml-1 small"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="card-footer bg-white border-top-0 pb-3">
+                <small class="text-muted"><i class="fa-regular fa-calendar-days mr-1"></i> {{ item.date }}</small>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center py-5 animate-up">
+        <i class="fa-solid fa-box-open fa-3x text-muted mb-3"></i>
+        <h3 class="text-muted">No items found</h3>
+        <p>Try matching another search term or category.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Item: {{ item.name }}{% endblock %}
+
+{% block content %}
+<div class="form-container animate-up" style="max-width: 700px;">
+    <div class="text-center mb-4">
+        <div class="h2 font-weight-bold"><i class="fa-solid fa-pen-to-square text-primary mr-2"></i> Edit Post</div>
+        <p class="text-muted">Update the information for your item</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('edit_item', item_id=item.id) }}" enctype="multipart/form-data">
+        <div class="form-group mb-3">
+            <label class="small font-weight-bold ml-1 text-muted">ITEM NAME</label>
+            <input type="text" class="form-control" name="name" value="{{ item.name }}" required>
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="small font-weight-bold ml-1 text-muted">DESCRIPTION</label>
+            <textarea class="form-control" name="description" rows="3" required>{{ item.description }}</textarea>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">CATEGORY</label>
+                <select class="form-control" name="category" required>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" {% if category.id == item.category_id %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">STATUS</label>
+                <select class="form-control" name="status" required>
+                    <option value="lost" {% if item.status|lower == 'lost' %}selected{% endif %}>Lost</option>
+                    <option value="found" {% if item.status|lower == 'found' %}selected{% endif %}>Found</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">DATE</label>
+                <input type="date" class="form-control" name="date" value="{{ item.date.strftime('%Y-%m-%d') if item.date else '' }}" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">LOCATION</label>
+                <input type="text" class="form-control" name="location" value="{{ item.location }}" required>
+            </div>
+        </div>
+
+        <div class="form-group mb-4">
+            <label class="small font-weight-bold ml-1 text-muted">UPDATE IMAGE</label>
+            <div class="custom-file mb-3">
+                <input type="file" class="custom-file-input" id="image" name="image">
+                <label class="custom-file-label" for="image" style="border-radius: 12px;">Choose new image...</label>
+            </div>
+            {% if item.image_file %}
+            <div class="text-center p-3 bg-light rounded-lg border border-dashed">
+                <div class="small font-weight-bold text-muted mb-2">CURRENT IMAGE</div>
+                <img src="{{ url_for('static', filename='images/' + item.image_file) }}" 
+                     alt="{{ item.name }}" class="rounded shadow-sm" style="max-height: 150px; object-fit: contain;">
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="d-flex align-items-center">
+            <button type="submit" class="btn btn-primary btn-block py-3 shadow-sm mr-2 flex-grow-1">
+                <i class="fa-solid fa-save mr-2"></i> Save Changes
+            </button>
+            <a href="{{ url_for('item_detail', item_id=item.id) }}" class="btn btn-outline-secondary py-3 px-4">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+// Display filename in custom file input
+document.querySelector('.custom-file-input').addEventListener('change', function(e) {
+    let fileName = e.target.files[0].name;
+    let nextSibling = e.target.nextElementSibling;
+    nextSibling.innerText = fileName;
+});
+</script>
+{% endblock %}

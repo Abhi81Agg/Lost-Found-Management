@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Update Profile{% endblock %}
+
+{% block content %}
+<div class="form-container animate-up" style="max-width: 800px;">
+    <div class="text-center mb-4">
+        <div class="h2 font-weight-bold"><i class="fa-solid fa-user-edit text-primary mr-2"></i> Update Profile</div>
+        <p class="text-muted">Revise your personal and academic details</p>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">FIRST NAME</label>
+                <input type="text" class="form-control" name="first_name" value="{{ user.first_name }}" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">LAST NAME</label>
+                <input type="text" class="form-control" name="last_name" value="{{ user.last_name }}" required>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">ROLL NUMBER</label>
+                <input type="text" class="form-control" name="roll_number" value="{{ user.roll_number }}" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">BATCH</label>
+                <select name="batch" class="form-control" required>
+                    {% for year in range(2020, 2031) %}
+                    <option value="{{ year }}" {% if user.batch == year %}selected{% endif %}>{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">COURSE</label>
+                <select name="course" class="form-control" required>
+                    <option value="Btech" {% if user.course == 'Btech' %}selected{% endif %}>Btech</option>
+                    <option value="Barch" {% if user.course == 'Barch' %}selected{% endif %}>Barch</option>
+                    <option value="Mtech" {% if user.course == 'Mtech' %}selected{% endif %}>Mtech</option>
+                    <option value="Msc" {% if user.course == 'Msc' %}selected{% endif %}>Msc</option>
+                    <option value="PHD" {% if user.course == 'PHD' %}selected{% endif %}>PHD</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="small font-weight-bold ml-1 text-muted">BRANCH</label>
+                <select name="branch" class="form-control" required>
+                    <option value="CSE" {% if user.branch == 'CSE' %}selected{% endif %}>CSE</option>
+                    <option value="ECE" {% if user.branch == 'ECE' %}selected{% endif %}>ECE</option>
+                    <option value="EEE" {% if user.branch == 'EEE' %}selected{% endif %}>EEE</option>
+                    <option value="ICE" {% if user.branch == 'ICE' %}selected{% endif %}>ICE</option>
+                    <option value="Chem" {% if user.branch == 'Chem' %}selected{% endif %}>Chem</option>
+                    <option value="Civil" {% if user.branch == 'Civil' %}selected{% endif %}>Civil</option>
+                    <option value="MECH" {% if user.branch == 'MECH' %}selected{% endif %}>MECH</option>
+                    <option value="Prod" {% if user.branch == 'Prod' %}selected{% endif %}>Prod</option>
+                    <option value="Other" {% if user.branch == 'Other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="small font-weight-bold ml-1 text-muted">MOBILE NUMBER</label>
+            <input type="text" class="form-control" name="mobile_number" value="{{ user.mobile_number or '' }}" required placeholder="e.g. +91 9876543210" style="border-radius: 12px;">
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="small font-weight-bold ml-1 text-muted">UPDATE PROFILE PICTURE</label>
+            <div class="custom-file mb-3">
+                <input type="file" class="custom-file-input" id="profile_pic" name="profile_pic" accept="image/*">
+                <label class="custom-file-label" for="profile_pic" style="border-radius: 12px;">Choose image...</label>
+            </div>
+            {% if user.profile_pic %}
+            <div class="text-center mt-3 p-3 bg-light rounded-lg border border-dashed mb-3">
+                <div class="small font-weight-bold text-muted mb-2">CURRENT PICTURE</div>
+                <img src="{{ url_for('static', filename='images/' + user.profile_pic) }}" 
+                     alt="Current Profile Picture" class="rounded-circle border" 
+                     style="width: 80px; height: 80px; object-fit: cover;">
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group mb-4">
+            <label class="small font-weight-bold ml-1 text-muted">STUDENT ID CARD IMAGE</label>
+            <div class="custom-file mb-3">
+                <input type="file" class="custom-file-input" id="student_id_card" name="student_id_card" accept="image/*">
+                <label class="custom-file-label" for="student_id_card" style="border-radius: 12px;">Choose image...</label>
+            </div>
+            {% if user.student_id_card %}
+            <div class="text-center mt-3 p-3 bg-light rounded-lg border border-dashed">
+                <div class="small font-weight-bold text-muted mb-2">CURRENT STUDENT ID CARD</div>
+                <img src="{{ url_for('static', filename='images/' + user.student_id_card) }}" 
+                     alt="Current Student ID Card" class="img-fluid border rounded" 
+                     style="max-width: 200px; max-height: 150px; object-fit: contain;">
+            </div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block py-3 shadow-sm">
+            Save Changes
+        </button>
+        
+        <div class="text-center mt-4">
+            <a href="{{ url_for('view_profile') }}" class="text-muted small font-weight-bold"><i class="fa-solid fa-arrow-left"></i> Cancel and Return</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    function validateForm() {
+        const fileInput = document.getElementById("profile_pic");
+        const file = fileInput.files[0];
+
+        if (file && !file.type.startsWith('image/')) {
+            alert("Please upload a valid image file for the profile picture.");
+            return false;
+        }
+
+        const idFileInput = document.getElementById("student_id_card");
+        const idFile = idFileInput.files[0];
+
+        if (idFile && !idFile.type.startsWith('image/')) {
+            alert("Please upload a valid image file for the student ID card.");
+            return false;
+        }
+
+        return true;
+    }
+
+    // Display filename in custom file inputs
+    document.querySelectorAll('.custom-file-input').forEach(input => {
+        input.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files.length > 0) {
+                let fileName = e.target.files[0].name;
+                let nextSibling = e.target.nextElementSibling;
+                nextSibling.innerText = fileName;
+            }
+        });
+    });
+</script>
+{% endblock %}

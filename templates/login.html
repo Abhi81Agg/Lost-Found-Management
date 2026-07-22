@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In{% endblock %}
+
+{% block content %}
+<div class="form-container animate-up">
+    <div class="text-center mb-4">
+        <div class="h2 font-weight-bold"><i class="fa-solid fa-right-to-bracket text-primary mr-2"></i> Sign In</div>
+        <p class="text-muted small">Welcome back! Please enter your details.</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('login') }}">
+        <div class="form-group mb-3">
+            <label class="small font-weight-bold ml-1 text-muted">EMAIL</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text bg-white border-right-0" style="border-radius: 12px 0 0 12px;"><i class="fa-regular fa-envelope text-muted"></i></span>
+                </div>
+                <input type="email" class="form-control border-left-0" name="email" required placeholder="name@example.com" style="border-radius: 0 12px 12px 0;">
+            </div>
+        </div>
+
+        <div class="form-group mb-4">
+            <div class="d-flex justify-content-between mb-1">
+                <label class="small font-weight-bold ml-1 text-muted">PASSWORD</label>
+                <a href="{{ url_for('forgot_password') }}" class="small font-weight-bold text-primary">Forgot?</a>
+            </div>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text bg-white border-right-0" style="border-radius: 12px 0 0 12px;"><i class="fa-solid fa-lock text-muted"></i></span>
+                </div>
+                <input type="password" class="form-control border-left-0" name="password" required placeholder="••••••••" style="border-radius: 0 12px 12px 0;">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block py-3 mb-4 shadow-sm">
+            Log In
+        </button>
+
+        <div class="text-center py-2 bg-light rounded-lg border">
+            <span class="text-muted small">New to the platform?</span>
+            <a href="{{ url_for('register') }}" class="small font-weight-bold text-primary ml-1">Create Account</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
