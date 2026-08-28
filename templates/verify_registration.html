@@ -3,36 +3,214 @@
 {% block title %}Verify Registration{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Verify Your Email</h2>
-    <p>Please enter the OTP sent to your email to complete registration.</p>
-    <form method="POST" action="{{ url_for('verify_registration') }}" onsubmit="return validateOTP()">
-        <div class="form-group">
-            <label for="otp">OTP</label>
-            <input type="text" class="form-control" id="otp" name="otp" required>
-            <small id="otpHelp" class="form-text text-muted">Enter the 6-digit OTP sent to your email.</small>
+
+<div class="form-container animate-up" style="max-width: 500px;">
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <div class="text-center mb-4">
+
+        <div class="h2 font-weight-bold">
+            <i class="fa-solid fa-envelope-circle-check text-primary mr-2"></i>
+            Verify Your Email
         </div>
-        <button type="submit" class="btn btn-primary">Verify</button>
-    </form>
-    {% if error %}
-    <div class="alert alert-danger mt-3" role="alert">
-        {{ error }}
+
+        <p class="text-muted">
+            We've sent a 6-digit verification code to your email address.
+        </p>
+
     </div>
-    {% endif %}
+
+
+    <!-- =====================================================
+         FLASH MESSAGES
+         ===================================================== -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+                <div
+                    class="alert
+                    {% if category == 'danger' %}
+                        alert-danger
+                    {% elif category == 'warning' %}
+                        alert-warning
+                    {% elif category == 'success' %}
+                        alert-success
+                    {% else %}
+                        alert-info
+                    {% endif %}
+                    alert-dismissible fade show"
+                    role="alert"
+                >
+
+                    {{ message }}
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="alert"
+                        aria-label="Close"
+                    >
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <!-- =====================================================
+         OTP FORM
+         ===================================================== -->
+
+    <form
+        method="POST"
+        action="{{ url_for('verify_registration') }}"
+        onsubmit="return validateOTP()"
+    >
+
+        <div class="form-group mb-4">
+
+            <label
+                for="otp"
+                class="small font-weight-bold ml-1 text-muted"
+            >
+                ENTER OTP
+            </label>
+
+            <input
+                type="text"
+                class="form-control text-center"
+                id="otp"
+                name="otp"
+                required
+                maxlength="6"
+                minlength="6"
+                pattern="[0-9]{6}"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                placeholder="Enter 6-digit OTP"
+                style="
+                    font-size: 24px;
+                    letter-spacing: 8px;
+                    font-weight: 600;
+                    border-radius: 12px;
+                "
+            >
+
+            <small
+                id="otpHelp"
+                class="form-text text-muted mt-2"
+            >
+
+                <i class="fa-solid fa-circle-info mr-1"></i>
+
+                Enter the 6-digit OTP sent to your email.
+
+            </small>
+
+        </div>
+
+
+        <!-- =================================================
+             VERIFY BUTTON
+             ================================================= -->
+
+        <button
+            type="submit"
+            class="btn btn-primary btn-block py-3 mb-4 shadow-sm"
+        >
+
+            <i class="fa-solid fa-shield-check mr-2"></i>
+
+            Verify Email
+
+        </button>
+
+
+        <!-- =================================================
+             BACK TO REGISTER
+             ================================================= -->
+
+        <div class="text-center py-2 bg-light rounded-lg border">
+
+            <span class="text-muted small">
+                Didn't receive the OTP?
+            </span>
+
+            <a
+                href="{{ url_for('register') }}"
+                class="small font-weight-bold text-primary ml-1"
+            >
+                Register Again
+            </a>
+
+        </div>
+
+    </form>
+
 </div>
 
+
+<!-- =========================================================
+     OTP VALIDATION
+     ========================================================= -->
+
 <script>
-    function validateOTP() {
-        const otp = document.getElementById("otp").value;
 
-        // Check if OTP is a 6-digit number
-        const otpPattern = /^\d{6}$/;
-        if (!otpPattern.test(otp)) {
-            alert("Please enter a valid 6-digit OTP.");
-            return false;
-        }
+function validateOTP() {
 
-        return true;
+    const otp =
+        document.getElementById("otp").value.trim();
+
+
+    // Check exactly 6 digits
+
+    const otpPattern = /^\d{6}$/;
+
+
+    if (!otpPattern.test(otp)) {
+
+        alert(
+            "Please enter a valid 6-digit OTP."
+        );
+
+        document
+            .getElementById("otp")
+            .focus();
+
+        return false;
     }
+
+
+    return true;
+}
+
+
+// =========================================================
+// ALLOW ONLY NUMBERS
+// =========================================================
+
+document
+    .getElementById("otp")
+    .addEventListener("input", function () {
+
+        this.value = this.value
+            .replace(/\D/g, "")
+            .slice(0, 6);
+
+    });
+
 </script>
+
 {% endblock %}
